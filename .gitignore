@@ -1,0 +1,8 @@
+*.pem
+*.db
+*.env
+.config/
+data/
+**/data/
+supply-chain.json
+sboms/

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Generate RSA keypair for JWT signing.
+# Run once on FLEET before first orchestrator deploy.
+# Output goes to S-tier LUKS mount.
+#
+# Usage:
+#   bash scripts/gen_keypair.sh
+#
+# Output:
+#   /srv/orchestrator/data/s/orchestrator_private.pem
+#   /srv/orchestrator/data/s/orchestrator_public.pem
+
+set -euo pipefail
+source "$(dirname "$0:)/.env"
+SECURE_LOC="$SECURE_LOC"
+
+if [ ! -d "$SECURE_LOC" ]; then
+    echo "ERROR: Secure Location not available at $SECURE_LOC"
+    exit 1
+fi
+
+PRIVATE_KEY="$SECURE_LOC/$PRIVATE_KEY_NAME"
+PUBLIC_KEY="$SECURE_LOC/$PUBLIC_KEY_NAME"
+
+if [ -f "$PRIVATE_KEY" ]; then
+    echo "ERROR: Private key already exists at $PRIVATE_KEY. Refusing to overwrite."
+    echo "Delete manually if you intend to rotate keys."
+    exit 1
+fi
+
+openssl genrsa -out "$PRIVATE_KEY" 4096
+openssl rsa -in "$PRIVATE_KEY" -pubout -out "$PUBLIC_KEY"
+
+chmod 600 "$PRIVATE_KEY"
+chmod 644 "$PUBLIC_KEY"
+
+echo "Keypair generated:"
+echo "  Private: $PRIVATE_KEY"
+echo "  Public:  $PUBLIC_KEY"
+echo ""
+echo "Distribute the public key to services that need JWT validation."
+echo "The private key never leaves the orchestrator."
