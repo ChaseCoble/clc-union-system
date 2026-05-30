@@ -6,3 +6,4 @@ data/
 **/data/
 supply-chain.json
 sboms/
+scripts/registry_sync.sh

@@ -19,12 +19,12 @@ async def login(payload: LoginRequest, response: Response, db: Session = Depends
     if not bcrypt.checkpw(payload.password.encode(), user.hashed_password.encode()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    token = issue_token(user.id, user.username)
+    token = issue_token(user.id, user.username, user.role)
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
-        secure=True,
+        secure=False,
         samesite="strict",
         max_age=86400,
     )

@@ -14,10 +14,6 @@ async def lifespan(app: FastAPI):
     # Validate config on startup — fails hard if S-tier not mounted
     config = get_config()
 
-    # Create tables (Alembic handles migrations; this is a safety net for first boot)
-    engine = get_engine()
-    Base.metadata.create_all(bind=engine)
-
     yield
     # Shutdown — nothing to clean up in V1
 

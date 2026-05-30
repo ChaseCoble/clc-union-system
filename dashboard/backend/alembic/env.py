@@ -2,13 +2,12 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 import sys
-import os
 
 sys.path.insert(0, '/app')
 
 from backend.config import get_config
 from backend.database import Base
-from backend.models import user, panel, layout  # noqa: F401 — registers models
+from backend.models import tab, focus_cache, ui_state  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:
@@ -34,10 +33,9 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    cfg = config.get_section(config.config_ini_section, {})
-    cfg["sqlalchemy.url"] = get_url()
+    url = get_url()
     connectable = engine_from_config(
-        cfg,
+        {"sqlalchemy.url": url},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

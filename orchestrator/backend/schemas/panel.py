@@ -14,7 +14,8 @@ class PanelManifest(BaseModel):
     api_base: str
     publishes: list[str] = []
     subscribes: list[str] = []
-
+    focus_components: list[dict] = []
+    role: str = "owner"
     @field_validator("panel_id")
     @classmethod
     def panel_id_format(cls, v: str) -> str:
@@ -51,5 +52,6 @@ class PanelResponse(BaseModel):
     verified: bool
     registered_at: datetime
     last_verified_at: datetime | None
+    focus_components: list[dict] = []
 
     model_config = {"from_attributes": True}

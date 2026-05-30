@@ -20,3 +20,5 @@ class PanelRegistration(Base):
     verified = Column(Boolean, default=False)
     registered_at = Column(DateTime, default=datetime.utcnow)
     last_verified_at = Column(DateTime, nullable=True)
+    focus_components = Column(JSON, default=list)
+    required_role = Column(String, default="owner")
