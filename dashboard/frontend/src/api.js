@@ -14,9 +14,9 @@ async function request(method, path, body) {
 }
 
 // Auth
-export const authVerify  = ()           => request('GET',  '/auth/verify')
-export const authLogin   = (u, p)       => request('POST', '/auth/login',   { username: u, password: p })
-export const authLogout  = ()           => request('POST', '/auth/logout')
+export const authVerify  = ()           => request('GET',  '/api/auth/verify')
+export const authLogin   = (u, p)       => request('POST', '/api/auth/login',   { username: u, password: p })
+export const authLogout  = ()           => request('POST', '/api/auth/logout')
 
 // Panels
 export const getPanels   = ()           => request('GET',  '/ui/panels')

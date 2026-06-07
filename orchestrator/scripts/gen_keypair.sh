@@ -1,14 +1,4 @@
 #!/usr/bin/env bash
-# Generate RSA keypair for JWT signing.
-# Run once on FLEET before first orchestrator deploy.
-# Output goes to S-tier LUKS mount.
-#
-# Usage:
-#   bash scripts/gen_keypair.sh
-#
-# Output:
-#   /srv/orchestrator/data/s/orchestrator_private.pem
-#   /srv/orchestrator/data/s/orchestrator_public.pem
 
 set -euo pipefail
 source "$(dirname "$0:)/.env"

@@ -23,9 +23,9 @@ app = FastAPI(
 
 app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
-app.include_router(tabs.router, prefix="/api")
-app.include_router(focus.router, prefix="/api")
-app.include_router(ui.router, prefix="/api")
+app.include_router(tabs.router)
+app.include_router(focus.router)
+app.include_router(ui.router)
 
 static_path = "/app/static"
 if os.path.exists(static_path):
