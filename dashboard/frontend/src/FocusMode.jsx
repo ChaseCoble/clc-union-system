@@ -4,28 +4,23 @@ import { useUIEventBus, UI_SIGNALS } from './UIEventBus.jsx'
 
 export default function FocusMode({ onClose }) {
   const [composition, setComposition] = useState([])
-  const [loading, setLoading] = useState(true)
-  const containerRef = useRef(null)
-  const { publish } = useUIEventBus()
+  const [loading, setLoading]         = useState(true)
+  const containerRef                  = useRef(null)
+  const { publish }                   = useUIEventBus()
 
   useEffect(() => {
     publish(UI_SIGNALS.FOCUS_ENTERED, {})
 
     getFocus()
-      .then(data => {
-        setComposition(data.composition || [])
-      })
+      .then(data => setComposition(data.composition || []))
       .catch(() => setComposition([]))
       .finally(() => setLoading(false))
 
-    const handleKey = (e) => {
-      if (e.key === 'Escape') handleClose()
-    }
+    const handleKey = (e) => { if (e.key === 'Escape') handleClose() }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [])
 
-  // Load focus Web Components
   useEffect(() => {
     if (loading || !containerRef.current) return
 
@@ -69,25 +64,18 @@ export default function FocusMode({ onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
       <div style={styles.backdrop} onClick={handleClose} />
-
-      {/* Modal */}
       <div style={styles.modal}>
-        {/* Header */}
         <div style={styles.header}>
           <div style={styles.headerLeft}>
             <span style={styles.icon}>◈</span>
             <span style={styles.title}>FOCUS</span>
           </div>
-          <button style={styles.closeBtn} onClick={handleClose}>
-            ESC
-          </button>
+          <button style={styles.closeBtn} onClick={handleClose}>ESC</button>
         </div>
 
         <div style={styles.divider} />
 
-        {/* Content */}
         <div ref={containerRef} style={styles.content}>
           {loading ? (
             <div style={styles.loadingMsg}>LOADING</div>
@@ -137,8 +125,8 @@ const styles = {
     zIndex: 101,
     width: '560px',
     maxHeight: '80vh',
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border-bright)',
+    background: 'var(--color-surface-2)',
+    border: '1px solid var(--color-border-focus)',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
@@ -156,20 +144,20 @@ const styles = {
     gap: '8px',
   },
   icon: {
-    color: 'var(--accent)',
+    color: 'var(--color-primary)',
     fontSize: '16px',
   },
   title: {
-    fontFamily: 'var(--font-display)',
+    fontFamily: 'var(--font-base)',
     fontSize: '14px',
     fontWeight: 600,
-    color: 'var(--text-primary)',
+    color: 'var(--color-text)',
     letterSpacing: '0.2em',
   },
   closeBtn: {
     background: 'transparent',
-    border: '1px solid var(--border-base)',
-    color: 'var(--text-dim)',
+    border: '1px solid var(--color-border)',
+    color: 'var(--color-text-disabled)',
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
     letterSpacing: '0.15em',
@@ -179,7 +167,7 @@ const styles = {
   },
   divider: {
     height: '1px',
-    background: 'var(--border-dim)',
+    background: 'var(--color-border)',
     flexShrink: 0,
   },
   content: {
@@ -193,7 +181,7 @@ const styles = {
   loadingMsg: {
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.2em',
     padding: '32px 0',
     textAlign: 'center',
@@ -206,12 +194,12 @@ const styles = {
     padding: '32px 0',
     fontFamily: 'var(--font-mono)',
     fontSize: '11px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.1em',
   },
   emptyIcon: {
     fontSize: '24px',
-    color: 'var(--border-bright)',
+    color: 'var(--color-border-focus)',
   },
   componentSlot: {
     display: 'flex',
@@ -221,18 +209,18 @@ const styles = {
   componentLabel: {
     fontFamily: 'var(--font-mono)',
     fontSize: '9px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
   },
   componentId: {
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     opacity: 0.6,
     marginLeft: '4px',
   },
   componentHost: {
-    background: 'var(--bg-raised)',
-    border: '1px solid var(--border-dim)',
+    background: 'var(--color-surface-3)',
+    border: '1px solid var(--color-border)',
     minHeight: '80px',
   },
 }

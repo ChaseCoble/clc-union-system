@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react'
 import { authVerify, authLogin } from './api.js'
 
 export default function AuthGuard({ children, onUser }) {
-  const [state, setState] = useState('checking') // checking | login | authed
-  const [error, setError] = useState(null)
+  const [state, setState]       = useState('checking')
+  const [error, setError]       = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading]   = useState(false)
 
   useEffect(() => {
     authVerify()
-      .then(data => {
-        onUser(data)
-        setState('authed')
-      })
+      .then(data => { onUser(data); setState('authed') })
       .catch(() => setState('login'))
   }, [])
 
@@ -32,9 +29,7 @@ export default function AuthGuard({ children, onUser }) {
     }
   }
 
-  const handleKey = (e) => {
-    if (e.key === 'Enter') handleLogin()
-  }
+  const handleKey = (e) => { if (e.key === 'Enter') handleLogin() }
 
   if (state === 'checking') {
     return (
@@ -94,9 +89,7 @@ export default function AuthGuard({ children, onUser }) {
         </button>
 
         <div style={styles.footer}>
-          <span style={styles.footerText}>
-            UNION SYSTEM · AUTHORIZED ACCESS ONLY
-          </span>
+          <span style={styles.footerText}>UNION SYSTEM · AUTHORIZED ACCESS ONLY</span>
         </div>
       </div>
     </div>
@@ -107,21 +100,21 @@ const styles = {
   fullscreen: {
     position: 'fixed',
     inset: 0,
-    background: 'var(--bg-void)',
+    background: 'var(--color-bg)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checking: {
     fontFamily: 'var(--font-mono)',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     fontSize: '11px',
     letterSpacing: '0.2em',
   },
   loginBox: {
     width: '320px',
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border-base)',
+    background: 'var(--color-surface-2)',
+    border: '1px solid var(--color-border)',
     padding: '32px',
     display: 'flex',
     flexDirection: 'column',
@@ -134,26 +127,26 @@ const styles = {
   },
   logoMark: {
     fontSize: '24px',
-    color: 'var(--accent)',
+    color: 'var(--color-primary)',
     lineHeight: 1,
     marginBottom: '8px',
   },
   title: {
-    fontFamily: 'var(--font-display)',
+    fontFamily: 'var(--font-base)',
     fontSize: '22px',
     fontWeight: 700,
-    color: 'var(--text-primary)',
+    color: 'var(--color-text)',
     letterSpacing: '0.15em',
   },
   subtitle: {
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.2em',
     fontFamily: 'var(--font-mono)',
   },
   divider: {
     height: '1px',
-    background: 'var(--border-dim)',
+    background: 'var(--color-border)',
   },
   fields: {
     display: 'flex',
@@ -167,14 +160,14 @@ const styles = {
   },
   label: {
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.15em',
     fontFamily: 'var(--font-mono)',
   },
   input: {
-    background: 'var(--bg-base)',
-    border: '1px solid var(--border-base)',
-    color: 'var(--text-primary)',
+    background: 'var(--color-surface-1)',
+    border: '1px solid var(--color-border)',
+    color: 'var(--color-text)',
     fontFamily: 'var(--font-mono)',
     fontSize: '13px',
     padding: '8px 10px',
@@ -184,13 +177,13 @@ const styles = {
   },
   error: {
     fontSize: '11px',
-    color: 'var(--status-error)',
+    color: 'var(--color-destructive)',
     fontFamily: 'var(--font-mono)',
     letterSpacing: '0.05em',
   },
   submitBtn: {
-    background: 'var(--accent)',
-    color: 'var(--bg-void)',
+    background: 'var(--color-primary)',
+    color: 'var(--color-text-inverse)',
     border: 'none',
     fontFamily: 'var(--font-mono)',
     fontSize: '11px',
@@ -206,7 +199,7 @@ const styles = {
   },
   footerText: {
     fontSize: '9px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.1em',
     fontFamily: 'var(--font-mono)',
   },

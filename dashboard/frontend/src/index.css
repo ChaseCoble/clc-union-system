@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* Base resets — visual tokens come from /themes/active.css loaded in index.html */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -10,11 +12,11 @@ html, body, #root {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--bg-void);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.5;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -24,23 +26,23 @@ html, body, #root {
   height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-base);
+  background: var(--color-surface-1);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-bright);
+  background: var(--color-border-focus);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-dim);
+  background: var(--color-text-muted);
 }
 
 /* Selection */
 ::selection {
-  background: var(--accent-glow);
-  color: var(--accent-bright);
+  background: var(--color-primary-glow);
+  color: var(--color-primary-hover);
 }
 
 /* Focus rings */
 :focus-visible {
-  outline: 1px solid var(--accent);
+  outline: 1px solid var(--color-primary);
   outline-offset: 2px;
 }

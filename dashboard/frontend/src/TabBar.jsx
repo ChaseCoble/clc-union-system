@@ -3,7 +3,7 @@ import { createTab, updateTab, deleteTab } from './api.js'
 
 export default function TabBar({ tabs, activeTabId, userId, onTabChange, onTabsChange, onFocusOpen }) {
   const [editingId, setEditingId] = useState(null)
-  const [editValue, setEditValue]   = useState('')
+  const [editValue, setEditValue] = useState('')
 
   const handleAdd = async () => {
     const order = tabs.length
@@ -34,7 +34,6 @@ export default function TabBar({ tabs, activeTabId, userId, onTabChange, onTabsC
 
   return (
     <div style={styles.bar}>
-      {/* Tab list */}
       <div style={styles.tabs}>
         {tabs.map(tab => (
           <div
@@ -78,7 +77,6 @@ export default function TabBar({ tabs, activeTabId, userId, onTabChange, onTabsC
         <button style={styles.addBtn} onClick={handleAdd}>+</button>
       </div>
 
-      {/* Right controls */}
       <div style={styles.controls}>
         <button style={styles.focusBtn} onClick={onFocusOpen}>
           <span style={styles.focusBtnIcon}>◈</span>
@@ -94,8 +92,8 @@ const styles = {
     display: 'flex',
     alignItems: 'stretch',
     justifyContent: 'space-between',
-    background: 'var(--bg-base)',
-    borderBottom: '1px solid var(--border-dim)',
+    background: 'var(--color-surface-1)',
+    borderBottom: '1px solid var(--color-border)',
     height: '32px',
     flexShrink: 0,
   },
@@ -109,19 +107,19 @@ const styles = {
     alignItems: 'center',
     gap: '4px',
     padding: '0 12px',
-    borderRight: '1px solid var(--border-dim)',
+    borderRight: '1px solid var(--color-border)',
     cursor: 'pointer',
     transition: 'background var(--transition-fast)',
     position: 'relative',
   },
   tabActive: {
-    background: 'var(--bg-surface)',
-    borderBottom: '1px solid var(--accent)',
+    background: 'var(--color-surface-2)',
+    borderBottom: '1px solid var(--color-primary)',
   },
   tabLabel: {
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--text-secondary)',
+    color: 'var(--color-text-muted)',
     letterSpacing: '0.12em',
     userSelect: 'none',
     whiteSpace: 'nowrap',
@@ -129,7 +127,7 @@ const styles = {
   closeBtn: {
     background: 'transparent',
     border: 'none',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     cursor: 'pointer',
     fontSize: '14px',
     lineHeight: 1,
@@ -139,8 +137,8 @@ const styles = {
   renameInput: {
     background: 'transparent',
     border: 'none',
-    borderBottom: '1px solid var(--accent)',
-    color: 'var(--text-primary)',
+    borderBottom: '1px solid var(--color-primary)',
+    color: 'var(--color-text)',
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
     letterSpacing: '0.12em',
@@ -150,8 +148,8 @@ const styles = {
   addBtn: {
     background: 'transparent',
     border: 'none',
-    borderRight: '1px solid var(--border-dim)',
-    color: 'var(--text-dim)',
+    borderRight: '1px solid var(--color-border)',
+    color: 'var(--color-text-disabled)',
     cursor: 'pointer',
     fontSize: '16px',
     padding: '0 12px',
@@ -168,8 +166,8 @@ const styles = {
     alignItems: 'center',
     gap: '6px',
     background: 'transparent',
-    border: '1px solid var(--border-base)',
-    color: 'var(--text-secondary)',
+    border: '1px solid var(--color-border)',
+    color: 'var(--color-text-muted)',
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
     letterSpacing: '0.15em',
@@ -178,7 +176,7 @@ const styles = {
     transition: 'all var(--transition-fast)',
   },
   focusBtnIcon: {
-    color: 'var(--accent)',
+    color: 'var(--color-primary)',
     fontSize: '12px',
   },
 }

@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+    /* Surface */
+    --color-bg: #f5f5f7;
+    --color-surface-1: #ffffff;
+    --color-surface-2: #f0f0f5;
+    --color-surface-3: #e8e8f0;
+    --color-border: #d1d1db;
+    --color-border-focus: #8888bb;
+
+    /* Text */
+    --color-text: #111118;
+    --color-text-muted: #666677;
+    --color-text-disabled: #aaaabc;
+    --color-text-inverse: #f5f5f7;
+
+    /* Accent */
+    --color-primary: #3a6fd8;
+    --color-primary-hover: #2a5ec8;
+    --color-secondary: #7c5cec;
+    --color-destructive: #d42b4a;
+    --color-destructive-hover: #b81e3a;
+    --color-success: #22c55e;
+    --color-warning: #d97706;
+
+    /* Semantic extras */
+    --color-severe: #991111;
+    --color-primary-glow: rgba(58, 111, 216, 0.15);
+
+    /* Ordinal — temperature map, 10 levels */
+    --color-ordinal-1: #16a34a;
+    --color-ordinal-2: #4ade80;
+    --color-ordinal-3: #86efac;
+    --color-ordinal-4: #ca8a04;
+    --color-ordinal-5: #ea580c;
+    --color-ordinal-6: #c2410c;
+    --color-ordinal-7: #dc2626;
+    --color-ordinal-8: #b91c1c;
+    --color-ordinal-9: #c4183c;
+    --color-ordinal-10: #9b1239;
+
+    /* Typography */
+    --font-base: 'Syne', system-ui, sans-serif;
+    --font-mono: 'Azeret Mono', monospace;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
+    --font-size-md: 15px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+    --line-height-tight: 1.2;
+    --line-height-base: 1.5;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 40px;
+
+    /* Shape */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --radius-full: 9999px;
+
+    /* Elevation */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+    /* Timing */
+    --transition-fast: 120ms ease;
+    --transition-base: 200ms ease;
+    --transition-slow: 350ms ease;
+}
+
+/* Base resets — applied globally when this theme is active */
+:root {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-base);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--color-bg);
+}
+
+code, pre, kbd, samp {
+    font-family: var(--font-mono);
+}
+
+/* Scrollbar — themed */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-surface-2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border-focus);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+}

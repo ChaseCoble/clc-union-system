@@ -7,9 +7,9 @@ async function sha256hex(text) {
 }
 
 export default function PanelHost({ panel, style }) {
-  const containerRef = useRef(null)
-  const { publish } = useUIEventBus()
-  const [status, setStatus] = useState('loading') // loading | ok | checksum_fail | error
+  const containerRef          = useRef(null)
+  const { publish }           = useUIEventBus()
+  const [status, setStatus]   = useState('loading')
   const [errorMsg, setErrorMsg] = useState(null)
 
   useEffect(() => {
@@ -22,17 +22,15 @@ export default function PanelHost({ panel, style }) {
         if (!res.ok) throw new Error(`Failed to fetch panel: ${res.status}`)
         const src = await res.text()
 
-        // Verify checksum
         const digest = 'sha256:' + await sha256hex(src)
         if (digest !== panel.frontend_checksum) {
           setStatus('checksum_fail')
-          setErrorMsg(`Checksum mismatch — panel rejected`)
+          setErrorMsg('Checksum mismatch — panel rejected')
           return
         }
 
         if (cancelled) return
 
-        // Define Web Component if not already registered
         const tag = panel.panel_id.replace(/_/g, '-') + '-panel'
         if (!customElements.get(tag)) {
           const blob = new Blob([src], { type: 'application/javascript' })
@@ -43,7 +41,6 @@ export default function PanelHost({ panel, style }) {
 
         if (cancelled) return
 
-        // Inject Web Component into container
         const el = document.createElement(tag)
         el.setAttribute('panel-id', panel.panel_id)
         el.setAttribute('service-url', panel.service_url)
@@ -70,21 +67,19 @@ export default function PanelHost({ panel, style }) {
 
   return (
     <div style={{ ...styles.host, ...style }}>
-      {/* Panel header */}
       <div style={styles.header}>
         <span style={styles.panelId}>{panel.panel_id.toUpperCase().replace(/_/g, ' ')}</span>
         <span style={styles.version}>v{panel.version}</span>
         <span style={{
           ...styles.statusDot,
           background: status === 'ok'
-            ? 'var(--status-ok)'
+            ? 'var(--color-success)'
             : status === 'loading'
-              ? 'var(--text-dim)'
-              : 'var(--status-error)'
+              ? 'var(--color-text-disabled)'
+              : 'var(--color-destructive)'
         }} />
       </div>
 
-      {/* Content area */}
       <div style={styles.content}>
         {status === 'loading' && (
           <div style={styles.stateMsg}>LOADING</div>
@@ -115,8 +110,8 @@ export default function PanelHost({ panel, style }) {
 
 const styles = {
   host: {
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border-dim)',
+    background: 'var(--color-surface-2)',
+    border: '1px solid var(--color-border)',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
@@ -127,21 +122,21 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     padding: '4px 8px',
-    borderBottom: '1px solid var(--border-dim)',
-    background: 'var(--bg-base)',
+    borderBottom: '1px solid var(--color-border)',
+    background: 'var(--color-surface-1)',
     flexShrink: 0,
   },
   panelId: {
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.12em',
     flex: 1,
   },
   version: {
     fontFamily: 'var(--font-mono)',
     fontSize: '9px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     opacity: 0.5,
   },
   statusDot: {
@@ -163,7 +158,7 @@ const styles = {
     justifyContent: 'center',
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.2em',
   },
   errorMsg: {
@@ -179,13 +174,13 @@ const styles = {
   errorCode: {
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--status-error)',
+    color: 'var(--color-destructive)',
     letterSpacing: '0.15em',
   },
   errorDetail: {
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     textAlign: 'center',
   },
   webComponentContainer: {

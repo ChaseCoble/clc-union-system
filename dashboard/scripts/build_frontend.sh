@@ -3,11 +3,11 @@
 # Builds the dashboard React frontend using the base-frontend image.
 # Output goes to /srv/union/dashboard/static/
 # Run this whenever frontend source changes.
+# Theme files in ${THEMES_SRC} are restored after build — they survive emptyOutDir.
 
 set -euo pipefail
 
 source "$(dirname "$0")/.env"
-
 
 echo "[build] Starting frontend build..."
 
@@ -32,5 +32,18 @@ cp /app/project/vite.config.js /app/vite.config.js && \
 npm run build && \
 cp -r /static/. /output/
 '
+
+echo "[build] Restoring theme files..."
+mkdir -p "${THEMES_OUT}"
+cp "${THEMES_SRC}"/*.css "${THEMES_OUT}/"
+
+# Restore active.css symlink — points to dark by default if not already set.
+# To switch themes: update the symlink manually or via POST /api/theme.
+if [ ! -L "${THEMES_OUT}/active.css" ]; then
+    ln -sf dark.css "${THEMES_OUT}/active.css"
+    echo "[build] active.css symlink created → dark.css"
+else
+    echo "[build] active.css symlink already exists — leaving unchanged."
+fi
 
 echo "[build] Done. Static files at ${STATIC_OUT}"

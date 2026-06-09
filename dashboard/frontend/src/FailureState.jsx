@@ -4,9 +4,7 @@ export default function FailureState({ lastSeen }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setElapsed(e => e + 1)
-    }, 1000)
+    const id = setInterval(() => setElapsed(e => e + 1), 1000)
     return () => clearInterval(id)
   }, [])
 
@@ -45,15 +43,15 @@ const styles = {
     alignItems: 'flex-start',
     gap: '12px',
     padding: '12px 16px',
-    background: 'rgba(154, 58, 58, 0.08)',
-    border: '1px solid rgba(154, 58, 58, 0.3)',
+    background: 'rgba(233, 69, 96, 0.08)',
+    border: '1px solid rgba(233, 69, 96, 0.3)',
     margin: '8px',
   },
   indicator: {
     width: '6px',
     height: '6px',
     borderRadius: '50%',
-    background: 'var(--status-severe)',
+    background: 'var(--color-severe)',
     marginTop: '4px',
     flexShrink: 0,
     animation: 'pulse 2s infinite',
@@ -66,14 +64,14 @@ const styles = {
   code: {
     fontFamily: 'var(--font-mono)',
     fontSize: '11px',
-    color: 'var(--status-error)',
+    color: 'var(--color-destructive)',
     letterSpacing: '0.1em',
     fontWeight: 500,
   },
   detail: {
     fontFamily: 'var(--font-mono)',
     fontSize: '11px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.05em',
   },
   meta: {
@@ -84,11 +82,11 @@ const styles = {
   metaItem: {
     fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: 'var(--text-dim)',
+    color: 'var(--color-text-disabled)',
     letterSpacing: '0.1em',
   },
   value: {
-    color: 'var(--text-secondary)',
+    color: 'var(--color-text-muted)',
     marginLeft: '6px',
   },
 }

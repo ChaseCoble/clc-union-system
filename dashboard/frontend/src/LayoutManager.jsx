@@ -3,13 +3,11 @@ import { GRID_DIVISIONS } from './theme.js'
 import PanelHost from './PanelHost.jsx'
 import { updateTab } from './api.js'
 
-// Snap value to nearest grid fraction (powers of 2)
 function snapToGrid(value, total, divisions) {
   const unit = total / divisions
   return Math.max(1, Math.round(value / unit))
 }
 
-// Default layout for a new panel — places at first available position
 function defaultPlacement(panelId, existingLayout) {
   const used = new Set(existingLayout.map(p => `${p.col},${p.row}`))
   for (let row = 0; row < GRID_DIVISIONS; row++) {
@@ -23,18 +21,16 @@ function defaultPlacement(panelId, existingLayout) {
 }
 
 export default function LayoutManager({ tab, panels, onLayoutChange }) {
-  const gridRef = useRef(null)
-  const dragRef = useRef(null)
+  const gridRef   = useRef(null)
+  const dragRef   = useRef(null)
   const resizeRef = useRef(null)
 
-  // Build layout — merge tab.layout with current verified panels
   const buildLayout = () => {
     const saved = tab.layout?.panels || []
-    const active = panels.map(p => {
+    return panels.map(p => {
       const existing = saved.find(s => s.panel_id === p.panel_id)
       return existing || defaultPlacement(p.panel_id, saved)
     })
-    return active
   }
 
   const [layout, setLayout] = useState(buildLayout)
@@ -45,11 +41,10 @@ export default function LayoutManager({ tab, panels, onLayoutChange }) {
     try {
       await updateTab(tab.id, { layout: { panels: newLayout } })
     } catch {
-      // Non-fatal — layout saves best-effort
+      // Non-fatal
     }
   }, [tab.id])
 
-  // Drag to move
   const onDragStart = (e, panelId) => {
     dragRef.current = {
       panelId,
@@ -78,7 +73,6 @@ export default function LayoutManager({ tab, panels, onLayoutChange }) {
     dragRef.current = null
   }
 
-  // Resize handle
   const onResizeStart = (e, panelId) => {
     e.stopPropagation()
     resizeRef.current = {
@@ -160,7 +154,7 @@ const styles = {
     gridTemplateRows:    `repeat(${GRID_DIVISIONS}, 1fr)`,
     gap: 'var(--panel-gap)',
     padding: 'var(--panel-gap)',
-    background: 'var(--bg-void)',
+    background: 'var(--color-bg)',
     overflow: 'hidden',
   },
   cell: {
