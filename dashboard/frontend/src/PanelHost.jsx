@@ -17,7 +17,7 @@ export default function PanelHost({ panel, style }) {
 
     async function loadPanel() {
       try {
-        const url = `${panel.service_url}${panel.frontend_endpoint}`
+        const url = `/panels/${panel.panel_id}/frontend.js`
         const res = await fetch(url)
         if (!res.ok) throw new Error(`Failed to fetch panel: ${res.status}`)
         const src = await res.text()

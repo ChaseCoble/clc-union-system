@@ -6,8 +6,8 @@ from backend.models.focus_cache import FocusCache
 from backend.services.orchestrator import get_verified_panels
 
 
-async def rebuild_focus_cache(db: Session) -> None:
-    panels = await get_verified_panels()
+async def rebuild_focus_cache(db: Session, cookie: str = "") -> None:
+    panels = await get_verified_panels(cookie=cookie)
 
     composition = []
     for panel in panels:

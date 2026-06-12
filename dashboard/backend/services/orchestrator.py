@@ -2,17 +2,17 @@ import httpx
 from backend.config import get_config
 
 
-async def get_verified_panels(role: str = "owner") -> list[dict]:
+async def get_verified_panels(cookie: str = "", role: str = "owner") -> list[dict]:
     config = get_config()
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             resp = await client.get(
                 f"{config.orchestrator_url}/panels/verified",
                 params={"role": role},
+                headers={"Cookie": f"access_token={cookie}"},
             )
             if resp.status_code == 200:
-                panels = resp.json()
-                return [p for p in panels if p.get("required_role") == role or p.get("required_role") == "owner"]
+                return resp.json()
             return []
     except httpx.RequestError:
         return []

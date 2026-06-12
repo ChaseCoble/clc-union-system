@@ -3,11 +3,17 @@
   "display_name": "Task Management",
   "version": "1.0.0",
   "health_endpoint": "/health",
-  "frontend_endpoint": "/panel.js",
+  "frontend_endpoint": "/",
   "api_base": "/api",
   "publishes": [],
   "subscribes": [],
-  "focus_components": [],
+  "focus_components": [
+    {
+      "component_id": "task-management",
+      "priority": 1,
+      "endpoint": "/foc"
+    }
+  ],
   "theme_compliant": true,
   "notes": "Checksum is computed at startup from the live panel.js — do not hardcode here."
 }

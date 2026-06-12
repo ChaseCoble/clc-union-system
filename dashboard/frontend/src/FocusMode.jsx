@@ -26,7 +26,7 @@ export default function FocusMode({ onClose }) {
 
     composition.forEach(async (component) => {
       try {
-        const url = `${component.service_url}${component.endpoint}`
+        const url = `/panels/${component.panel_id}/focus/${component.component_id}.js`
         const res = await fetch(url)
         if (!res.ok) return
         const src = await res.text()

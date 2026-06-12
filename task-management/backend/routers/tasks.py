@@ -194,6 +194,37 @@ async def unblock_task(
     db.refresh(task)
     return _enrich(task)
 
+@router.patch("/{task_id}/mount", response_model=TaskResponse)
+async def mount_task(
+    task_id: str,
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    if task.status != TaskStatus.QUEUED:
+        raise HTTPException(status_code=400, detail="Only queued tasks can be mounted")
+    task.mounted = True
+    db.commit()
+    db.refresh(task)
+    return _enrich(task)
+
+
+@router.patch("/{task_id}/unmount", response_model=TaskResponse)
+async def unmount_task(
+    task_id: str,
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    task.mounted = False
+    db.commit()
+    db.refresh(task)
+    return _enrich(task)
+
 
 # ---------------------------------------------------------------------------
 # Artifacts

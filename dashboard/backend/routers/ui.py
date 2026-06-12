@@ -12,13 +12,13 @@ router = APIRouter(prefix="/ui", tags=["ui"])
 
 
 @router.get("/panels")
-async def get_panels():
-    panels = await get_verified_panels()
+async def get_panels(request: Request):
+    cookie = request.cookies.get("access_token", "")
+    panels = await get_verified_panels(cookie=cookie)
     return {
         "panels": panels,
         "orchestrator_reachable": len(panels) > 0,
     }
-
 
 @router.get("/state/{user_id}", response_model=UIStateResponse)
 async def get_ui_state(user_id: str, db: Session = Depends(get_db)):

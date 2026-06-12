@@ -23,22 +23,18 @@ async def verify_panel(manifest: PanelManifest) -> None:
         try:
             resp = await client.get(health_url)
             if resp.status_code != 200:
-                error_text = f"Health endpoint {health_url} returned {resp.status_code} with body: {resp.text}"    
-                print(error_text)
                 raise VerificationError(
-                    error_text
+                    f"Health endpoint {health_url} returned {resp.status_code}"
                 )
         except httpx.RequestError as e:
-            print(f"Error: Health endpoint unreachable, {e}")
             raise VerificationError(f"Health endpoint unreachable: {e}") from e
 
         # Fetch frontend and verify checksum
         try:
             resp = await client.get(frontend_url)
             if resp.status_code != 200:
-                error_text = f"Frontend endpoint {frontend_url} returned {resp.status_code} with body: {resp.text}" 
-                print(error_text)
-                raise VerificationError(error_text
+                raise VerificationError(
+                    f"Frontend endpoint {frontend_url} returned {resp.status_code}"
                 )
         except httpx.RequestError as e:
             raise VerificationError(f"Frontend endpoint unreachable: {e}") from e
@@ -48,7 +44,6 @@ async def verify_panel(manifest: PanelManifest) -> None:
         expected_hash = manifest.frontend_checksum
 
         if actual_hash != expected_hash:
-            print("Checksum mismatch")
             raise VerificationError(
                 f"Frontend checksum mismatch. "
                 f"Expected {expected_hash}, got {actual_hash}"

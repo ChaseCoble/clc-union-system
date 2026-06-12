@@ -4,6 +4,7 @@ from functools import lru_cache
 
 class Config:
     def __init__(self):
+        self.service_token: str = os.environ["SERVICE_TOKEN"]
         secure_loc = Path(os.environ["SECURE_LOC"])
         pvt_key_path = secure_loc / os.environ["PRIVATE_KEY_NAME"]
         pub_key_path = secure_loc / os.environ["PUBLIC_KEY_NAME"]
@@ -38,3 +39,4 @@ class Config:
 @lru_cache(maxsize=1)
 def get_config() -> Config:
     return Config()
+

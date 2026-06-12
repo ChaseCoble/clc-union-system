@@ -1,16 +1,13 @@
-import hashlib
 from uuid import uuid4
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import Response
 from sqlalchemy.orm import Session
-import httpx
 
 from backend.database import get_db
 from backend.models.panel import PanelRegistration
 from backend.schemas.panel import PanelManifest, PanelResponse
 from backend.services.verification import verify_panel, mark_verified, VerificationError
-from backend.services.jwt import get_current_user
+from backend.services.jwt import get_current_user, verify_service_token
 
 router = APIRouter(prefix="/panels", tags=["panels"])
 
@@ -19,7 +16,7 @@ router = APIRouter(prefix="/panels", tags=["panels"])
 async def register_panel(
     manifest: PanelManifest,
     db: Session = Depends(get_db),
-    _: dict = Depends(get_current_user),
+    _: dict = Depends(verify_service_token)
 ):
     existing = db.query(PanelRegistration).filter(
         PanelRegistration.panel_id == manifest.panel_id
@@ -28,6 +25,7 @@ async def register_panel(
     try:
         await verify_panel(manifest)
     except VerificationError as e:
+        print(f"Error: {e}")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Panel verification failed: {e}",
@@ -44,6 +42,7 @@ async def register_panel(
         existing.publishes = manifest.publishes
         existing.subscribes = manifest.subscribes
         existing.registered_at = datetime.now(timezone.utc)
+        existing.focus_components = manifest.focus_components
         mark_verified(existing)
         db.commit()
         return {"status": "updated", "panel_id": manifest.panel_id}
@@ -61,6 +60,7 @@ async def register_panel(
         publishes=manifest.publishes,
         subscribes=manifest.subscribes,
         registered_at=datetime.now(timezone.utc),
+        focus_components=manifest.focus_components
     )
     mark_verified(panel)
     db.add(panel)
@@ -74,69 +74,6 @@ async def get_verified_panels(
     _: dict = Depends(get_current_user),
 ):
     return db.query(PanelRegistration).filter(PanelRegistration.verified == True).all()
-
-
-@router.get("/{panel_id}/frontend.js")
-async def proxy_panel_frontend(
-    panel_id: str,
-    db: Session = Depends(get_db),
-    _: dict = Depends(get_current_user),
-):
-    panel = db.query(PanelRegistration).filter(
-        PanelRegistration.panel_id == panel_id,
-        PanelRegistration.verified == True,
-    ).first()
-    if not panel:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Panel not found")
-
-    url = panel.service_url.rstrip("/") + panel.frontend_endpoint
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url)
-            if resp.status_code != 200:
-                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Upstream error")
-    except httpx.RequestError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Upstream unreachable: {e}")
-
-    content = resp.content
-    actual = "sha256:" + hashlib.sha256(content).hexdigest()
-    if actual != panel.frontend_checksum:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Checksum mismatch")
-
-    return Response(content=content, media_type="application/javascript")
-
-
-@router.get("/{panel_id}/focus/{component_id}.js")
-async def proxy_focus_component(
-    panel_id: str,
-    component_id: str,
-    db: Session = Depends(get_db),
-    _: dict = Depends(get_current_user),
-):
-    panel = db.query(PanelRegistration).filter(
-        PanelRegistration.panel_id == panel_id,
-        PanelRegistration.verified == True,
-    ).first()
-    if not panel:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Panel not found")
-
-    component = next(
-        (c for c in (panel.focus_components or []) if c["component_id"] == component_id),
-        None,
-    )
-    if not component:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Focus component not found")
-
-    url = panel.service_url.rstrip("/") + component["endpoint"]
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(url)
-            if resp.status_code != 200:
-                raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Upstream error")
-    except httpx.RequestError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Upstream unreachable: {e}")
-
-    return Response(content=resp.content, media_type="application/javascript")
 
 
 @router.delete("/{panel_id}", status_code=status.HTTP_204_NO_CONTENT)

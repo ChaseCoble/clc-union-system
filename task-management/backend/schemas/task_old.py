@@ -42,14 +42,14 @@ class TaskCreate(BaseModel):
 
 
 class TaskUpdate(BaseModel):
-    """User-editable fields only. Scheduling internals (bucket, urgency, queue_tier)
-    are not accepted here — they are owned by the rule engine and aging system."""
     title: Optional[str] = None
     description: Optional[str] = None
     work_type: Optional[WorkType] = None
     enjoyability: Optional[Enjoyability] = None
+    bucket: Optional[int] = None
     due_date: Optional[datetime] = None
     estimated_duration: Optional[int] = None
+    queue_tier: Optional[QueueTier] = None
 
 
 class BlockRequest(BaseModel):
@@ -93,7 +93,6 @@ class TaskResponse(BaseModel):
     estimated_duration: Optional[int] = None
     actual_duration: Optional[int] = None
     queue_tier: Optional[QueueTier] = None
-    mounted: bool = False
     created_at: datetime
     completed_at: Optional[datetime] = None
     artifacts: list[ArtifactResponse] = []

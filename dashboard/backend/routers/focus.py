@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
@@ -17,6 +17,7 @@ async def get_focus(db: Session = Depends(get_db)):
 
 
 @router.post("/rebuild", status_code=200)
-async def rebuild_focus(db: Session = Depends(get_db)):
-    await rebuild_focus_cache(db)
+async def rebuild_focus(request: Request, db: Session = Depends(get_db)):
+    cookie = request.cookies.get("access_token", "")
+    await rebuild_focus_cache(db, cookie=cookie)
     return {"status": "rebuilt"}

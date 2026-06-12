@@ -40,9 +40,6 @@ class Task(Base):
     # V2 data dependency — present before first migration
     queue_tier = Column(Enum(QueueTier), nullable=True)
 
-    # Mounted — user has explicitly set this card for multitasking
-    mounted = Column(Boolean, default=False, nullable=True)
-
     created_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
 
