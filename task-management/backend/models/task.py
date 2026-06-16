@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone, timezone, timezone
 from sqlalchemy import Column, String, Integer, Float, DateTime, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from backend.database import Base
@@ -43,7 +43,7 @@ class Task(Base):
     # Mounted — user has explicitly set this card for multitasking
     mounted = Column(Boolean, default=False, nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
 
     # Relationships

@@ -90,10 +90,10 @@ def bucket_slot_rule(tasks: list[Task], context: dict) -> list[Task]:
     """
     hp = context["hp"]
     slots = {
-        0: int(hp.get("bucket_0_slots", 8)),
-        1: int(hp.get("bucket_1_slots", 5)),
-        2: int(hp.get("bucket_2_slots", 2)),
-        3: int(hp.get("bucket_3_slots", 1)),
+        0: int(float(hp.get("bucket_0_slots", 8))),
+        1: int(float(hp.get("bucket_1_slots", 5))),
+        2: int(float(hp.get("bucket_2_slots", 2))),
+        3: int(float(hp.get("bucket_3_slots", 1))),
     }
     counts = {0: 0, 1: 0, 2: 0, 3: 0}
     result = []

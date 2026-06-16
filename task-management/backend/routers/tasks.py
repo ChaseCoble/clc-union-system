@@ -1,5 +1,5 @@
 from uuid import uuid4
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timezone, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ from backend.schemas.task import (
 )
 from backend.services.auth import get_current_user, verify_service_token
 from backend.services.queue import resolve_task_blocks
-
+from backend.models.session import WorkSession
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
 
@@ -147,7 +147,10 @@ async def complete_task(
         task.actual_duration = payload.actual_duration
 
     db.commit()
-
+    active_session = db.query(WorkSession).filter(WorkSession.ended_at.is_(None)).first()
+    if active_session:
+        active_session.tasks_completed = (active_session.tasks_completed or 0) + 1
+        db.commit()
     # Synchronous TASK-block resolution
     resolve_task_blocks(task_id, db)
 

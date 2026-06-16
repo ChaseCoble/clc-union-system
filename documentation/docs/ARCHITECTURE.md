@@ -39,19 +39,19 @@ Every implementation decision is governed by these. They are non-negotiable.
 ## System Map
 
 ```
-SERVER
+SERVER (FLEET)
     ├── Orchestrator container
-    ├── Dashboard container       
+    ├── Dashboard container
     ├── Task Management container
     └── Future service containers
 
-CLIENT (WireGuard tunnel)
-    └── Browser → SERVER
+CLIENT (COMMANDER, WireGuard tunnel)
+    └── Browser → FLEET:8765 (dashboard)
 ```
 
-Access is exclusively through a WireGuard tunnel. No services are forwarded externally.
-The server is considered a critical resource and has no direct access to internet facing router.
-Client is exposed on LAN, but LAN firewalls prevent WAN to LAN access.
+Access is exclusively through a WireGuard tunnel. No services are forwarded externally. The server is considered a critical resource and has no direct access to the internet-facing router. Client is exposed on LAN, but LAN firewalls prevent WAN to LAN access.
+
+All service containers join `union_network` (172.28.0.0/16). Services address each other by Docker service name. The browser never contacts service containers directly — all panel traffic is proxied through the dashboard backend.
 
 ---
 
@@ -61,12 +61,12 @@ Client is exposed on LAN, but LAN firewalls prevent WAN to LAN access.
 |---|---|
 | Service backends | FastAPI + Uvicorn |
 | Orchestrator backend | FastAPI + Uvicorn |
-| Dashboard backend | FastAPI + Uvicorn (thin — UI state only) |
+| Dashboard backend | FastAPI + Uvicorn (thin — UI state and proxy only) |
 | Databases V1 | SQLite via SQLAlchemy |
 | Migrations | Alembic (every service, from day one) |
-| Service panel frontends | Web Components |
+| Service panel frontends | React + Vite (lib mode IIFE, Web Component shell) |
 | Dashboard shell frontend | React + Vite |
-| Styling | TailwindCSS |
+| Theme system | Static CSS, symlinked active theme |
 | Containerization | Docker + Compose (resource caps on all containers) |
 | Base images | Local registry mirror — supply chain controlled |
 
@@ -99,9 +99,10 @@ SQLAlchemy ORM throughout. The Postgres migration is a connection string swap pl
 |---|---|---|---|
 | **V1.1** | Orchestrator core | Auth, panel registry, layout storage, JWT issuance | Complete — May 25 2026 |
 | **V1.2** | Dashboard shell | React frontend, UI signal bus, panel loader, layout customization | Complete — Jun 7 2026 |
-| **V1.3** | Task Management Service | Full standalone service — backend, DB, panel Web Component, orchestrator registration | Backend complete — Jun 8 2026. Panel frontend pending. |
-| **V1.4** | Base Docker images | Base Python, webserver, frontend, security tooling images | Partial — base-security pending |
-| **V1.5** | Dev VM | Blast radius containment for automations and security tool dev | ISO downloaded, VM not created |
+| **V1.3** | Task Management Service | Full standalone service — backend, DB, React panel, orchestrator registration | Complete — Jun 16 2026 |
+| **V1.3.1** | Task Management gaps | PlatformRotationRule, blocked task surface, queue drop visualization, file artifacts, button hover states | Planned |
+| **V1.4** | Base Docker images | base-security image | Partial — base-security pending |
+| **V1.5** | Dev VM | Blast radius containment for automations and security tool dev | Planned |
 | **V2.1** | Orchestrator event bus | Backend pub/sub — services start communicating | Planned |
 | **V2.2** | Systems Health Service | Wazuh alerts, container stats, system health panel | Planned |
 | **V2.3** | Career Pipeline Service | Job tracker, application tool, follow-up publisher | Planned |
@@ -134,20 +135,73 @@ JWT signing uses RS256. The private key never leaves the orchestrator. Services 
 
 ## Panel System
 
-Services register themselves with the orchestrator at startup. The orchestrator validates the manifest, pings the service health endpoint, fetches the panel frontend, and verifies its checksum. Only verified panels appear on the dashboard.
+Services register themselves with the dashboard at startup. The dashboard validates the service token with the orchestrator, verifies the panel, and stores the manifest.
 
 ```
 Service starts
-    → POST /panels/register  (manifest + checksum)
-    → Orchestrator pings health endpoint
-    → Orchestrator fetches frontend, verifies checksum
-    → Panel marked verified
-    → Panel appears in verified list
+    → POST /api/panels/register  (manifest + service token)
+    → Dashboard validates token with orchestrator
+    → Panel stored with verified flag
+    → Panel appears on dashboard
 ```
 
-Panel frontends are Web Components. The dashboard shell has no knowledge of any framework used inside a panel. It injects `<panel-id-element>` into a layout slot and the panel is self-contained from that point.
+Panel frontends are React applications compiled to single IIFE bundles via Vite lib mode. The Web Component is a thin shell — `connectedCallback` attaches the shadow root and mounts the React app. The dashboard has no knowledge of any framework used inside a panel.
 
-Checksum verification is enforced both at registration and at load time. The dashboard verifies the checksum of every panel it loads against the orchestrator's record. A panel whose frontend has changed since registration will not load.
+### Panel Proxy Routes
+
+The browser never contacts service containers directly. All panel traffic is proxied through the dashboard:
+
+```
+GET  /api/panels/{panel_id}/proxy/{path}                → service frontend assets
+POST/GET/PATCH/DELETE /api/panels/{panel_id}/api/{path} → service API endpoints
+```
+
+`PanelHost.jsx` sets the panel's `api-base` attribute to the proxy path. Panel components call `api-base + /endpoint` — the dashboard forwards to the internal service URL.
+
+### Panel Build Pattern
+
+```
+frontend/
+    {panel-name}/
+        src/
+            panel.jsx       ← Web Component shell, mounts React app
+            App.jsx         ← root component
+            api.js          ← all fetch calls, credentials:include
+            components/
+            hooks/
+        vite.config.js      ← lib mode, IIFE output
+        package.json
+    static/
+        panel.js            ← build output
+        focus/
+            active_task.js  ← focus component build output
+```
+
+Build script (`build_panel.sh`) uses the `base-frontend` Docker image, merges `package.json`, copies source, runs `vite build`.
+
+### Theme System
+
+Theme files live at `/srv/union/dashboard/static/themes/`. Active theme selected via symlink:
+
+```
+themes/
+    dark.css
+    light.css
+    experimental.css
+    active.css → dark.css
+```
+
+The dashboard serves `/themes/` as a static files mount. `index.html` loads `/themes/active.css`. Each theme file declares CSS custom properties on `:root` as standard CSS — making them available to both the dashboard and panel shadow roots via normal inheritance.
+
+Panels reference theme variables directly (`var(--color-primary)`, `var(--color-bg)`, etc). No hardcoded values. Changing the active symlink changes every surface simultaneously.
+
+**Ordinal color scale** (10 levels, temperature map — green to red):
+
+| Variable | Use |
+|---|---|
+| `--color-ordinal-1` through `--color-ordinal-10` | Difficulty, severity, or any ranked 1-10 scale |
+
+Each panel decides independently how and where to apply ordinal colors.
 
 ---
 
@@ -170,7 +224,7 @@ When `ui.focus.entered` fires, the dashboard shell collapses all non-focused pan
 
 The first service. Solves the problem of work arriving from multiple platforms with no unified place to curate, prioritize, and execute against it in focused cognitive blocks.
 
-**Status:** Backend complete and running. Panel Web Component (frontend) pending. Not yet wired to orchestrator.
+**Status:** Complete — Jun 16 2026.
 
 ### Data Model
 
@@ -207,9 +261,9 @@ The queue is produced by a pipeline of discrete, replaceable rules applied in or
 | 6 | `EnjoyabilityRule` | DREAD always followed by ENJOYABLE — hard rule, no exceptions |
 | 7 | `UrgencyStripRule` | Strip urgency from output — always last |
 
-`UrgencyStripRule` is always last. Rules upstream of it depend on urgency values. Urgency never appears in any API response.
+`UrgencyStripRule` is always last. Rules upstream depend on urgency values. Urgency never appears in any API response.
 
-**Gap — V1.3.1:** `PlatformRotationRule` (no more than 2 consecutive same-platform tasks) is specified but not yet implemented. Requires platform tracking state threaded through the rule context.
+**Gap — V1.3.1:** `PlatformRotationRule` (no more than 2 consecutive same-platform tasks) is specified but not yet implemented.
 
 ### Aging
 
@@ -295,9 +349,13 @@ score = clamp(
 )
 ```
 
-Break overage is time beyond `active_minutes * break_budget_ratio`. Dread completions carry a bonus because finishing a dread task represents genuine adenosine cost absorbed.
+Break budget is `active_minutes * break_budget_ratio`. Break overage is time beyond budget. Dread completions carry a bonus because finishing a dread task represents genuine adenosine cost absorbed.
 
 Orphaned sessions (browser closed without ending) are auto-closed and logged as SESSION_ORPHANED health events.
+
+### Artifacts
+
+Tasks support file and link attachments. V1 supports LINK artifacts (label + URL). FILE artifact infrastructure (upload/download) is planned for V1.3.1.
 
 ### Service Auth
 

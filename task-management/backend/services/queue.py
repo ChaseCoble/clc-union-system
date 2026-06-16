@@ -4,7 +4,7 @@ recompute() is the single entry point for producing the queue.
 It never queries DB directly for its sorting logic — takes task list as input.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timezone, timezone
 from sqlalchemy.orm import Session
 
 from backend.models.task import Task

@@ -19,18 +19,18 @@ export const authLogin   = (u, p)       => request('POST', '/api/auth/login',   
 export const authLogout  = ()           => request('POST', '/api/auth/logout')
 
 // Panels
-export const getPanels   = ()           => request('GET',  '/ui/panels')
+export const getPanels   = ()           => request('GET',  '/api/ui/panels')
 
 // Tabs
-export const getTabs     = (userId)     => request('GET',  `/tabs?user_id=${userId}`)
-export const createTab   = (userId, d)  => request('POST', `/tabs?user_id=${userId}`, d)
-export const updateTab   = (id, d)      => request('PATCH', `/tabs/${id}`, d)
-export const deleteTab   = (id)         => request('DELETE', `/tabs/${id}`)
+export const getTabs     = (userId)     => request('GET',  `/api/tabs?user_id=${userId}`)
+export const createTab   = (userId, d)  => request('POST', `/api/tabs?user_id=${userId}`, d)
+export const updateTab   = (id, d)      => request('PATCH', `/api/tabs/${id}`, d)
+export const deleteTab   = (id)         => request('DELETE', `/api/tabs/${id}`)
 
 // UI State
-export const getUIState  = (userId)     => request('GET',  `/ui/state/${userId}`)
-export const saveUIState = (userId, d)  => request('POST', `/ui/state/${userId}`, d)
+export const getUIState  = (userId)     => request('GET',  `/api/ui/state/${userId}`)
+export const saveUIState = (userId, d)  => request('POST', `/api/ui/state/${userId}`, d)
 
 // Focus
-export const getFocus    = ()           => request('GET',  '/focus')
-export const rebuildFocus = ()          => request('POST', '/focus/rebuild')
+export const getFocus    = ()           => request('GET',  '/api/focus')
+export const rebuildFocus = ()          => request('POST', '/api/focus/rebuild')

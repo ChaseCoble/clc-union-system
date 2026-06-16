@@ -8,7 +8,7 @@ sys.path.insert(0, '/app')
 
 from backend.config import get_config
 from backend.database import Base
-from backend.models import user, panel, layout  # noqa: F401 — registers models
+from backend.models import user, service  # noqa: F401 — registers models
 
 config = context.config
 if config.config_file_name is not None:

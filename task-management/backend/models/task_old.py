@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone, timezone, timezone
 from sqlalchemy import Column, String, Integer, Float, DateTime, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from backend.database import Base
@@ -40,7 +40,7 @@ class Task(Base):
     # V2 data dependency — present before first migration
     queue_tier = Column(Enum(QueueTier), nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
 
     # Relationships

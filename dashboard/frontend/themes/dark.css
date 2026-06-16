@@ -1,13 +1,12 @@
-@import "tailwindcss";
 
 @theme {
     /* Surface */
-    --color-bg: #0f0f17;
-    --color-surface-1: #1a1a2e;
-    --color-surface-2: #16213e;
-    --color-surface-3: #1f2f50;
-    --color-border: #2a2a45;
-    --color-border-focus: #4a4a8a;
+    --color-bg: #0a0a0b;
+    --color-surface-1: #141417;
+    --color-surface-2: #1a1a1f;
+    --color-surface-3: #22222a;
+    --color-border: #2a2a36;
+    --color-border-focus: #3a3a46;
 
     /* Text */
     --color-text: #eaeaea;
@@ -16,9 +15,9 @@
     --color-text-inverse: #0f0f17;
 
     /* Accent */
-    --color-primary: #5b8dee;
-    --color-primary-hover: #7aa3f5;
-    --color-secondary: #a78bfa;
+    --color-primary: #c8922a;
+    --color-primary-hover: #e8b04a;
+    --color-secondary: #9a6a1a;
     --color-destructive: #e94560;
     --color-destructive-hover: #f26580;
     --color-success: #4ade80;
@@ -26,7 +25,7 @@
 
     /* Semantic extras */
     --color-severe: #cc2222;
-    --color-primary-glow: rgba(91, 141, 238, 0.15);
+    --color-primary-glow: rgba(200, 146, 42, 0.15);
 
     /* Ordinal — temperature map, 10 levels */
     --color-ordinal-1: #4ade80;
@@ -119,4 +118,59 @@ code, pre, kbd, samp {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--color-text-muted);
+}
+
+:root {
+    --color-bg: #0a0a0b;
+    --color-surface-1: #141417;
+    --color-surface-2: #1a1a1f;
+    --color-surface-3: #22222a;
+    --color-border: #2a2a36;
+    --color-border-focus: #3a3a46;
+    --color-text: #eaeaea;
+    --color-text-muted: #888888;
+    --color-text-disabled: #555555;
+    --color-text-inverse: #0f0f17;
+    --color-primary: #c8922a;
+    --color-primary-hover: #e8b04a;
+    --color-secondary: #9a6a1a;
+    --color-destructive: #e94560;
+    --color-success: #4ade80;
+    --color-warning: #facc15;
+    --color-severe: #cc2222;
+    --color-primary-glow: rgba(200, 146, 42, 0.15);
+    --color-ordinal-1: #4ade80;
+    --color-ordinal-2: #86efac;
+    --color-ordinal-3: #bef264;
+    --color-ordinal-4: #facc15;
+    --color-ordinal-5: #fb923c;
+    --color-ordinal-6: #f97316;
+    --color-ordinal-7: #f87171;
+    --color-ordinal-8: #ef4444;
+    --color-ordinal-9: #e94560;
+    --color-ordinal-10: #be123c;
+    --font-base: 'Syne', system-ui, sans-serif;
+    --font-mono: 'Azeret Mono', monospace;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
+    --font-size-md: 15px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+    --line-height-tight: 1.2;
+    --line-height-base: 1.5;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 40px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --radius-full: 9999px;
+    --transition-fast: 120ms ease;
+    --transition-base: 200ms ease;
+    --transition-slow: 350ms ease;
 }

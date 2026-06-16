@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone, timezone, timezone
 from sqlalchemy import Column, String, Float, DateTime, Boolean, Integer, JSON, Enum, ForeignKey
 from backend.database import Base
 from backend.models.enums import RuleClass
@@ -26,7 +26,7 @@ class RuleLog(Base):
 
     id = Column(String, primary_key=True)
     rule_id = Column(String, ForeignKey("rules.id"), nullable=False)
-    fired_at = Column(DateTime, default=datetime.utcnow)
+    fired_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     signal_value = Column(Float, nullable=True)
     task_id = Column(String, ForeignKey("tasks.id"), nullable=True)
     actions_taken = Column(JSON, default=list)

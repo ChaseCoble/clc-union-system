@@ -4,9 +4,9 @@ from backend.config import get_config
 from backend.database import get_engine, Base
 
 # Import models so Base knows about them before create_all
-from backend.models import user, panel, layout  # noqa: F401
+from backend.models import user, service  # noqa: F401
 
-from backend.routers import auth, panels, layout as layout_router, health
+from backend.routers import auth, service, health
 
 
 @asynccontextmanager
@@ -28,5 +28,4 @@ app = FastAPI(
 
 app.include_router(health.router)
 app.include_router(auth.router)
-app.include_router(panels.router)
-app.include_router(layout_router.router)
+app.include_router(service.router)

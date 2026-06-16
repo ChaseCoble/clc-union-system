@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone, timezone, timezone
 from sqlalchemy import Column, String, DateTime
 from backend.database import Base
 
@@ -9,7 +9,7 @@ class Hyperparameter(Base):
     id = Column(String, primary_key=True)
     key = Column(String, unique=True, nullable=False)
     value = Column(String, nullable=False)   # stored as string, cast on read
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 # Default hyperparameter values — written on first migration

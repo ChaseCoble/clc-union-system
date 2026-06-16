@@ -7,7 +7,7 @@ sys.path.insert(0, '/app')
 
 from backend.config import get_config
 from backend.database import Base
-from backend.models import tab, focus_cache, ui_state  # noqa: F401
+from backend.models import tab, focus_cache, ui_state, panel  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

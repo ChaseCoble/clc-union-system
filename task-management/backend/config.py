@@ -24,7 +24,7 @@ class Config:
         self.service_token: str = os.environ["SERVICE_TOKEN"]
         self.host: str = "0.0.0.0"
         self.port: int = int(os.environ.get("SERVICE_PORT", "8000"))
-
+        self.dashboard_url = os.environ.get("DASHBOARD_URL")
         # Panel registration fields — resolved at startup
         self.service_url: str = os.environ["SERVICE_URL"]
         self.panel_version: str = os.environ.get("PANEL_VERSION", "1.0.0")

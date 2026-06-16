@@ -1,5 +1,4 @@
 from backend.models.user import User
-from backend.models.panel import PanelRegistration
-from backend.models.layout import UserLayout
+from backend.models.service import Service
 
-__all__ = ["User", "PanelRegistration", "UserLayout"]
+__all__ = ["User", "Service"]

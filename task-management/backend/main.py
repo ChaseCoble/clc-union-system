@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 import httpx
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import os
 import hashlib
 import asyncio
@@ -13,31 +15,67 @@ from backend.routers import (
     health_check, tasks, queue, session, health_signals, hyperparameters, frontend
 )
 
-
 FRONTEND_STATIC = "/app/frontend/static"
+
+# In-memory service token singleton — persists for the lifetime of the process
+_service_token: str | None = None
+
+
+def get_service_token() -> str | None:
+    return _service_token
 
 
 async def register_with_orchestrator(config) -> None:
-    """Register panel with orchestrator on startup.
-    Non-fatal if orchestrator is temporarily unreachable — will be retried
-    next restart. Dashboard shows unverified until registration succeeds.
     """
+    Two-step registration:
+    1. Register service with orchestrator → receive service token
+    2. Register panel with dashboard using service token
+
+    Non-fatal — dashboard shows panel as unverified until registration succeeds.
+    Retried on next restart.
+    """
+    global _service_token
+
+    # Step 1 — Service registration with orchestrator
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{config.orchestrator_url}/services/register",
+                json={
+                    "service_id":      "task_management",
+                    "service_url":     config.service_url,
+                    "health_endpoint": "/health",
+                },
+                headers={"x-service-token": _service_token or ""},
+            )
+            if resp.status_code in (200, 201):
+                data = resp.json()
+                _service_token = data["service_token"]
+                print(f"[task-management] Service registered with orchestrator", flush=True)
+            else:
+                print(f"[task-management] Service registration failed: {resp.status_code} {resp.text}", flush=True)
+                return
+    except Exception as e:
+        print(f"[task-management] Orchestrator unreachable at startup: {e}", flush=True)
+        return
+
+    # Step 2 — Panel registration with dashboard
     panel_path = os.path.join(FRONTEND_STATIC, "panel.js")
     if not os.path.exists(panel_path):
-        print("[task-management] Panel frontend not found — skipping registration")
+        print("[task-management] Panel frontend not found — skipping panel registration", flush=True)
         return
 
     with open(panel_path, "rb") as f:
         content = f.read()
     checksum = "sha256:" + hashlib.sha256(content).hexdigest()
-    service_token=config.service_token
+
     manifest = {
         "panel_id":          "task_management",
         "display_name":      "Task Management",
         "version":           config.panel_version,
         "service_url":       config.service_url,
         "health_endpoint":   "/health",
-        "frontend_endpoint": "/",
+        "frontend_endpoint": "/panel.js",
         "frontend_checksum": checksum,
         "api_base":          "/api",
         "publishes":         [],
@@ -46,27 +84,32 @@ async def register_with_orchestrator(config) -> None:
             {
                 "component_id": "task_focus",
                 "priority":     1,
-                "endpoint":     "/foc"
+                "endpoint":     "/focus/active_task.js",
             }
         ],
+        "required_role":     "owner",
+        "metadata":          {},
     }
-    print(f"[task-management] Manifest: {manifest}", flush=True)
+
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(
-                f"{config.orchestrator_url}/panels/register",
+                f"{config.dashboard_url}/api/panels/register",
                 json=manifest,
-                headers={"Authorization": f"Bearer {config.service_token}"},
+                headers={
+                    "x-service-token": _service_token,
+                    "x-service-id":    "task_management",
+                },
             )
-            print(f"[task-management] Registration response: {resp.status_code} {resp.text}", flush=True)
+            print(f"[task-management] Panel registration: {resp.status_code} {resp.text}", flush=True)
     except Exception as e:
-        import traceback
-        print(f"[task-management] Registration exception: {e}", flush=True)
-        traceback.print_exc()
+        print(f"[task-management] Dashboard unreachable at panel registration: {e}", flush=True)
+
 
 async def _register_background(config):
     await asyncio.sleep(2)
     await register_with_orchestrator(config)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -90,3 +133,20 @@ app.include_router(session.router)
 app.include_router(health_signals.router)
 app.include_router(hyperparameters.router)
 app.include_router(frontend.router)
+
+# Serve panel Web Component and static assets
+static_path = "/app/frontend/static"
+if os.path.exists(static_path):
+    app.mount("/static", StaticFiles(directory=static_path), name="static")
+
+    @app.get("/panel.js")
+    async def serve_panel():
+        return FileResponse(f"{static_path}/panel.js", media_type="application/javascript")
+
+    @app.get("/focus/active_task.js")
+    async def serve_focus_active_task():
+        path = f"{static_path}/focus/active_task.js"
+        if not os.path.exists(path):
+            from fastapi.responses import Response
+            return Response(status_code=404)
+        return FileResponse(path, media_type="application/javascript")

@@ -22,6 +22,7 @@ class TaskStatus(str, enum.Enum):
 
 
 class BlockType(str, enum.Enum):
+    MANUAL = "MANUAL"
     DATE = "DATE"
     TIMER = "TIMER"
     TASK = "TASK"

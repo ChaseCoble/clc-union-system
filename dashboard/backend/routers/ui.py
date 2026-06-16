@@ -1,23 +1,24 @@
 from uuid import uuid4
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timezone, timezone
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
 from backend.models.ui_state import UIState
 from backend.schemas.ui_state import UIStateUpdate, UIStateResponse
-from backend.services.orchestrator import get_verified_panels
+from backend.services.orchestrator import orchestrator_reachable
+from backend.models.panel import Panel
 
 router = APIRouter(prefix="/ui", tags=["ui"])
 
 
 @router.get("/panels")
-async def get_panels(request: Request):
-    cookie = request.cookies.get("access_token", "")
-    panels = await get_verified_panels(cookie=cookie)
+async def get_panels(db: Session = Depends(get_db)):
+    panels = db.query(Panel).all()
+    reachable = await orchestrator_reachable()
     return {
         "panels": panels,
-        "orchestrator_reachable": len(panels) > 0,
+        "orchestrator_reachable": reachable,
     }
 
 @router.get("/state/{user_id}", response_model=UIStateResponse)

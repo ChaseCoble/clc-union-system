@@ -1,17 +1,16 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timezone, timezone
 from uuid import uuid4
 from sqlalchemy.orm import Session
 
 from backend.models.focus_cache import FocusCache
-from backend.services.orchestrator import get_verified_panels
+from backend.models.panel import Panel
 
+async def rebuild_focus_cache(db: Session) -> None:
 
-async def rebuild_focus_cache(db: Session, cookie: str = "") -> None:
-    panels = await get_verified_panels(cookie=cookie)
-
+    panels = db.query(Panel).all()
     composition = []
     for panel in panels:
-        for component in panel.get("focus_components", []):
+        for component in (panel.focus_components or []):
             composition.append({
                 "component_id": component["component_id"],
                 "priority":     component["priority"],

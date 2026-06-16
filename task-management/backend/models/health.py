@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone, timezone, timezone
 from sqlalchemy import Column, String, Float, DateTime, Enum, JSON, ForeignKey
 from backend.database import Base
 
@@ -13,4 +13,4 @@ class HealthEvent(Base):
     value = Column(Float, nullable=True)
     flags = Column(JSON, default=dict)
     window_sum = Column(Float, nullable=True)      # for second-derivative rule (V2)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
