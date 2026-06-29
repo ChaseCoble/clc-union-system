@@ -1,13 +1,13 @@
 from uuid import uuid4
-from datetime import datetime, timezone, timezone, timezone
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from datetime import datetime, timezone, timedelta, timezone, timezone
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-
+from pathlib import Path
 from backend.database import get_db
 from backend.models.task import Task
 from backend.models.artifact import TaskArtifact
-from backend.models.enums import TaskStatus, BlockType, compute_difficulty
+from backend.models.enums import TaskStatus, BlockType, ArtifactType, compute_difficulty
 from backend.schemas.task import (
     TaskCreate, TaskUpdate, TaskResponse, TaskIntakeRequest,
     BlockRequest, CompleteRequest, ArtifactResponse,
@@ -16,6 +16,38 @@ from backend.services.auth import get_current_user, verify_service_token
 from backend.services.queue import resolve_task_blocks
 from backend.models.session import WorkSession
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
+
+# File artifact storage — mounted volume, see docker-compose.yml
+ARTIFACT_STORAGE_ROOT = Path("/files")
+
+ALLOWED_EXTENSIONS = {
+    # Documents
+    "pdf", "docx", "md", "txt", "xlsx", "pptx", "csv",
+    # Images
+    "png", "jpg", "jpeg", "gif", "svg",
+    # Archives
+    "zip", "tar.gz",
+    # Code / config
+    "py", "sh", "js", "json", "yaml", "yml", "toml",
+}
+
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50MB per file, V1 ceiling
+
+
+def _validate_extension(filename: str) -> str:
+    """Returns the extension (lowercase, no dot) if allowed, raises 400 otherwise."""
+    name = filename.lower()
+    # Handle .tar.gz as a compound extension
+    if name.endswith(".tar.gz"):
+        ext = "tar.gz"
+    else:
+        ext = name.rsplit(".", 1)[-1] if "." in name else ""
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type '.{ext}' not allowed. Allowed: {sorted(ALLOWED_EXTENSIONS)}",
+        )
+    return ext
 
 
 def _enrich(task: Task) -> TaskResponse:
@@ -233,6 +265,57 @@ async def unmount_task(
 # Artifacts
 # ---------------------------------------------------------------------------
 
+@router.post("/{task_id}/artifacts/upload", response_model=ArtifactResponse, status_code=201)
+async def upload_artifact(
+    task_id: str,
+    label: str = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    """Upload a file artifact. Validated against extension allowlist,
+    written to the mounted task-files volume, capped at MAX_UPLOAD_BYTES."""
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    ext = _validate_extension(file.filename)
+
+    artifact_id = str(uuid4())
+    task_dir = ARTIFACT_STORAGE_ROOT / task_id
+    task_dir.mkdir(parents=True, exist_ok=True)
+
+    safe_filename = f"{artifact_id}_{file.filename}"
+    dest_path = task_dir / safe_filename
+
+    size = 0
+    with open(dest_path, "wb") as out:
+        while chunk := await file.read(1024 * 1024):
+            size += len(chunk)
+            if size > MAX_UPLOAD_BYTES:
+                out.close()
+                dest_path.unlink(missing_ok=True)
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"File exceeds {MAX_UPLOAD_BYTES // (1024*1024)}MB limit",
+                )
+            out.write(chunk)
+
+    artifact = TaskArtifact(
+        id=artifact_id,
+        task_id=task_id,
+        artifact_type=ArtifactType.FILE,
+        label=label,
+        url=None,
+        file_path=str(dest_path),
+        created_at=datetime.now(timezone.utc),
+    )
+    db.add(artifact)
+    db.commit()
+    db.refresh(artifact)
+    return artifact
+
+
 @router.post("/{task_id}/artifacts", response_model=ArtifactResponse, status_code=201)
 async def add_artifact(
     task_id: str,
@@ -274,6 +357,8 @@ async def delete_artifact(
     ).first()
     if not artifact:
         raise HTTPException(status_code=404, detail="Artifact not found")
+    if artifact.artifact_type == ArtifactType.FILE and artifact.file_path:
+        Path(artifact.file_path).unlink(missing_ok=True)
     db.delete(artifact)
     db.commit()
 
@@ -294,3 +379,95 @@ async def download_artifact(
     if not artifact.file_path:
         raise HTTPException(status_code=400, detail="Artifact has no file path")
     return FileResponse(artifact.file_path, filename=artifact.label)
+
+
+@router.get("/blocked", response_model=list[TaskResponse])
+async def get_blocked_tasks(
+    min_urgency: float = Query(default=0.0, ge=0.0, le=10.0),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=50),
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    """Blocked tasks, optionally filtered by minimum urgency. Paginated."""
+    q = (
+        db.query(Task)
+        .filter(
+            Task.status == TaskStatus.BLOCKED,
+            Task.urgency_base >= min_urgency,
+        )
+        .order_by(Task.urgency.desc())
+    )
+    total = q.count()
+    tasks = q.offset((page - 1) * limit).limit(limit).all()
+    return [_enrich(t) for t in tasks]
+
+
+# ---------------------------------------------------------------------------
+# Blocked task endpoints
+# ---------------------------------------------------------------------------
+
+HIGH_URGENCY_THRESHOLD = 7.0  # Earmarked: move to hyperparameters
+
+
+@router.get("/blocked", response_model=list[TaskResponse])
+async def get_blocked_tasks(
+    min_urgency: float = Query(default=0.0, ge=0.0, le=10.0),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=50),
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    """Blocked tasks optionally filtered by minimum urgency. Paginated."""
+    q = (
+        db.query(Task)
+        .filter(
+            Task.status == TaskStatus.BLOCKED,
+            Task.urgency_base >= min_urgency,
+        )
+        .order_by(Task.urgency.desc())
+    )
+    tasks = q.offset((page - 1) * limit).limit(limit).all()
+    return [_enrich(t) for t in tasks]
+
+
+@router.get("/blocked/urgent", response_model=list[TaskResponse])
+async def get_urgent_blocked_tasks(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=50),
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    """Blocked tasks with urgency >= 7.0 or due within 30 days.
+    Earmarked: move threshold to hyperparameters.
+    """
+    now = datetime.now(timezone.utc)
+    due_cutoff = now + timedelta(days=30)
+    q = (
+        db.query(Task)
+        .filter(
+            Task.status == TaskStatus.BLOCKED,
+            (Task.urgency_base >= HIGH_URGENCY_THRESHOLD) |
+            ((Task.due_date.isnot(None)) & (Task.due_date <= due_cutoff))
+        )
+        .order_by(Task.urgency.desc())
+    )
+    tasks = q.offset((page - 1) * limit).limit(limit).all()
+    return [_enrich(t) for t in tasks]
+
+
+@router.get("/blocked/count", response_model=dict)
+async def count_blocked_tasks(
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user),
+):
+    """Returns counts for tray badge: total blocked and urgent blocked."""
+    now = datetime.now(timezone.utc)
+    due_cutoff = now + timedelta(days=30)
+    total = db.query(Task).filter(Task.status == TaskStatus.BLOCKED).count()
+    urgent = db.query(Task).filter(
+        Task.status == TaskStatus.BLOCKED,
+        (Task.urgency_base >= HIGH_URGENCY_THRESHOLD) |
+        ((Task.due_date.isnot(None)) & (Task.due_date <= due_cutoff))
+    ).count()
+    return {"total": total, "urgent": urgent}

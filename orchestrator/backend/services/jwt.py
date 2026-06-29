@@ -4,9 +4,11 @@ from fastapi import HTTPException, Request, status
 from backend.config import get_config
 
 
-def issue_token(user_id: str, username: str, role:str) -> str:
+def issue_token(user_id: str, username: str, role:str, timediff: int = 0) -> str:
     config = get_config()
     now = datetime.now(timezone.utc)
+    if timediff == 0:
+        timediff = config.jwt_expiry_hours
     expire = now + timedelta(hours=config.jwt_expiry_hours)
     payload = {
         "sub": user_id,

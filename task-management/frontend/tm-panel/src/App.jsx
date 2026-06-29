@@ -7,6 +7,7 @@ import TaskCard from './components/TaskCard'
 import AddTaskForm from './components/AddTaskForm'
 import HealthSignals from './components/HealthSignals'
 import HyperparamPanel from './components/HyperparamPanel'
+import GatedTaskTray from './components/GatedTaskTray'
 
 const MODES = [
   { value: 'DEEP_WORK',  label: 'Deep work' },
@@ -140,6 +141,15 @@ export default function App({ apiBase }) {
             ))}
           </>
         )}
+
+        <GatedTaskTray
+          api={api}
+          mode={mode}
+          onSet={(task) => {
+            queue.appendTask(task)
+          }}
+          onUnblock={() => queue.load(mode)}
+        />
 
         <div style={s.footer}>
           <span style={s.footerCount}>{queue.queue.length} tasks queued</span>

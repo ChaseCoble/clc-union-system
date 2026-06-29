@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timezone, timezone
+from datetime import datetime, timezone
 from pydantic import BaseModel, field_validator
 from typing import Optional
 from backend.models.enums import WorkType, Enjoyability, TaskStatus, BlockType, QueueTier
@@ -54,13 +54,13 @@ class TaskUpdate(BaseModel):
 
 class BlockRequest(BaseModel):
     block_type: BlockType
-    block_until: Optional[datetime] = None              # DATE or TIMER
-    block_task_id: Optional[str] = None                 # TASK
+    block_until: Optional[datetime] = None
+    block_task_id: Optional[str] = None
     block_task_status_required: Optional[TaskStatus] = None
 
 
 class CompleteRequest(BaseModel):
-    actual_duration: Optional[int] = None               # minutes
+    actual_duration: Optional[int] = None
 
 
 class TaskIntakeRequest(BaseModel):
@@ -100,5 +100,34 @@ class TaskResponse(BaseModel):
     # Computed fields — never stored
     difficulty_label: Optional[str] = None
     difficulty_ordinal: Optional[int] = None
+    drop_reason: Optional[str] = None  # populated by forbidden endpoints only
 
     model_config = {"from_attributes": True}
+
+
+class ForbiddenTaskResponse(BaseModel):
+    """TaskResponse for forbidden endpoints — drop_reason is always populated."""
+    id: str
+    platform_id: Optional[str] = None
+    title: str
+    description: Optional[str] = None
+    work_type: WorkType
+    enjoyability: Enjoyability
+    status: TaskStatus
+    bucket: int
+    block_type: Optional[BlockType] = None
+    block_until: Optional[datetime] = None
+    block_task_id: Optional[str] = None
+    due_date: Optional[datetime] = None
+    estimated_duration: Optional[int] = None
+    actual_duration: Optional[int] = None
+    queue_tier: Optional[QueueTier] = None
+    mounted: bool = False
+    created_at: datetime
+    completed_at: Optional[datetime] = None
+    artifacts: list[ArtifactResponse] = []
+    difficulty_label: Optional[str] = None
+    difficulty_ordinal: Optional[int] = None
+    drop_reason: str = "Unknown rule"
+
+    model_config = {"from_attributes": False}

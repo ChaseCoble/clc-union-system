@@ -7,3 +7,6 @@ data/
 supply-chain.json
 sboms/
 scripts/registry_sync.sh
+/srv/union/env.debug
+/srv/union/task-management/scripts/ingest_tasks.py
+/srv/union/task-management/scripts/tasks/*

@@ -27,6 +27,22 @@ export const api = (apiBase) => ({
   getQueue:      (mode = 'DEEP_WORK') => call(apiBase, `/queue?mode=${mode}`),
   recompute:     (mode = 'DEEP_WORK') => call(apiBase, `/queue/recompute?mode=${mode}`, { method: 'POST' }),
 
+  // Blocked tasks
+  getBlocked:       (page = 1, limit = 10) =>
+    call(apiBase, `/tasks/blocked?page=${page}&limit=${limit}`),
+  getBlockedUrgent: (page = 1, limit = 10) =>
+    call(apiBase, `/tasks/blocked/urgent?page=${page}&limit=${limit}`),
+  getBlockedCount:  () =>
+    call(apiBase, `/tasks/blocked/count`),
+
+  // Forbidden tasks (dropped by rule pipeline)
+  getForbidden:       (mode = 'DEEP_WORK', page = 1, limit = 10) =>
+    call(apiBase, `/queue/forbidden?mode=${mode}&page=${page}&limit=${limit}`),
+  getForbiddenUrgent: (mode = 'DEEP_WORK', page = 1, limit = 10) =>
+    call(apiBase, `/queue/forbidden/urgent?mode=${mode}&page=${page}&limit=${limit}`),
+  getForbiddenCount:  (mode = 'DEEP_WORK') =>
+    call(apiBase, `/queue/count/forbidden?mode=${mode}`),
+
   // Session
   getSession:    ()                   => call(apiBase, '/session/current'),
   startSession:  ()                   => call(apiBase, '/session/start', { method: 'POST', body: '{}' }),
@@ -36,6 +52,7 @@ export const api = (apiBase) => ({
   }),
 
   // Tasks
+  getTask:       (id)                 => call(apiBase, `/tasks/${id}`),
   createTask:    (payload)            => call(apiBase, '/tasks', { method: 'POST', body: JSON.stringify(payload) }),
   completeTask:  (id, duration)       => call(apiBase, `/tasks/${id}/complete`, {
     method: 'PATCH',
@@ -45,6 +62,7 @@ export const api = (apiBase) => ({
     method: 'PATCH',
     body: JSON.stringify(payload),
   }),
+  unblockTask:   (id)                 => call(apiBase, `/tasks/${id}/unblock`, { method: 'PATCH', body: '{}' }),
   mountTask:     (id)                 => call(apiBase, `/tasks/${id}/mount`,   { method: 'PATCH', body: '{}' }),
   unmountTask:   (id)                 => call(apiBase, `/tasks/${id}/unmount`, { method: 'PATCH', body: '{}' }),
 

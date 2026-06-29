@@ -43,7 +43,14 @@ def register(fn: RuleFn) -> RuleFn:
 @register
 def block_filter_rule(tasks: list[Task], context: dict) -> list[Task]:
     """DROP all BLOCKED tasks."""
-    return [t for t in tasks if t.status != TaskStatus.BLOCKED]
+    drop_log = context.get("drop_log", {})
+    result = []
+    for t in tasks:
+        if t.status == TaskStatus.BLOCKED:
+            drop_log[t.id] = "BlockFilterRule — task is BLOCKED"
+        else:
+            result.append(t)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +68,14 @@ _MODE_ALLOWED: dict[str, set[str]] = {
 def mode_filter_rule(tasks: list[Task], context: dict) -> list[Task]:
     """DROP tasks whose work_type is not allowed in current mode."""
     allowed = _MODE_ALLOWED.get(context["mode"], set())
-    return [t for t in tasks if t.work_type in allowed]
+    drop_log = context.get("drop_log", {})
+    result = []
+    for t in tasks:
+        if t.work_type in allowed:
+            result.append(t)
+        else:
+            drop_log[t.id] = f"ModeFilterRule — {t.work_type} not allowed in {context['mode']}"
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -96,12 +110,15 @@ def bucket_slot_rule(tasks: list[Task], context: dict) -> list[Task]:
         3: int(float(hp.get("bucket_3_slots", 1))),
     }
     counts = {0: 0, 1: 0, 2: 0, 3: 0}
+    drop_log = context.get("drop_log", {})
     result = []
     for task in tasks:
         b = task.bucket
         if counts[b] < slots[b]:
             result.append(task)
             counts[b] += 1
+        else:
+            drop_log[task.id] = f"BucketSlotRule — bucket {b} full ({slots[b]} slots used)"
     return result
 
 
@@ -130,13 +147,17 @@ def difficulty_alternation_rule(tasks: list[Task], context: dict) -> list[Task]:
     for task in tasks:
         _, ordinal = compute_difficulty(task.enjoyability, task.work_type)
 
+        drop_log = context.get("drop_log", {})
+
         # Step constraint
         if prev_ordinal is not None and abs(ordinal - prev_ordinal) > step:
+            drop_log[task.id] = f"DifficultyAlternationRule — step {abs(ordinal - prev_ordinal):.0f} exceeds threshold {step:.0f}"
             continue
 
         # Window ceiling
         window_sum = sum(window[-2:]) + ordinal  # 3-task window
         if window_sum > ceiling:
+            drop_log[task.id] = f"DifficultyAlternationRule — window sum {window_sum:.0f} exceeds ceiling {ceiling:.0f}"
             continue
 
         result.append(task)
@@ -198,8 +219,19 @@ def urgency_strip_rule(tasks: list[Task], context: dict) -> list[Task]:
 def run_pipeline(tasks: list[Task], context: dict) -> list[Task]:
     """Execute all registered rules in order.
     Takes the task list as input — never queries DB directly.
+    Populates context["drop_log"] with {task_id: reason} if present.
     """
     result = list(tasks)
     for rule in _REGISTERED_RULES:
         result = rule(result, context)
     return result
+
+
+def run_pipeline_with_drops(tasks: list[Task], context: dict) -> tuple[list[Task], dict]:
+    """Execute pipeline and return (queued, drop_log).
+    drop_log maps task_id -> reason string for every dropped task.
+    """
+    drop_log: dict[str, str] = {}
+    context = {**context, "drop_log": drop_log}
+    queued = run_pipeline(tasks, context)
+    return queued, drop_log

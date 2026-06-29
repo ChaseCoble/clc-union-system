@@ -48,5 +48,11 @@ export function useQueue(api) {
     await load(mode)
   }, [api, load])
 
-  return { queue, loading, error, load, recompute, completeTask, blockTask, mountTask, unmountTask }
+  // Append a task directly — used when mounting gated tasks that
+  // won't appear in the pipeline output
+  const appendTask = useCallback((task) => {
+    setQueue(prev => prev.find(t => t.id === task.id) ? prev : [...prev, task])
+  }, [])
+
+  return { queue, loading, error, load, recompute, completeTask, blockTask, mountTask, unmountTask, appendTask }
 }

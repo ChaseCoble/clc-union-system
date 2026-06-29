@@ -1,0 +1,362 @@
+[
+  {
+    "title": "Install HTB tooling on Kali VM",
+    "description": "kali-tools-top10, seclists, gobuster, feroxbuster, evil-winrm, impacket-scripts, bloodhound, neo4j, openvpn",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 0,
+    "urgency": 9.0
+  },
+  {
+    "title": "Push HTB ovpn from fleet, confirm tun0 comes up",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 0,
+    "urgency": 9.0
+  },
+  {
+    "title": "Set up tmux config on Kali",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Create note template and first machine directory structure in /opt/security/active/htb/",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Create sec_user inside Kali, harden SSH",
+    "description": "No password auth, no root login",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Set up SSH keys — separate keys per role on Debian client",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Configure ~/.ssh/config on client",
+    "description": "fleet jump, kali-htb via ProxyJump",
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Test loot pull via rsync from fleet as sec_admin",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 6.0
+  },
+  {
+    "title": "Set up SPICE/virt-viewer aliases on client",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 2,
+    "urgency": 5.0
+  },
+  {
+    "title": "Define and start isolated attack network",
+    "description": "attack-net, no shared bridge with fleet",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 8.0
+  },
+  {
+    "title": "Move kali-htb off default network onto attack-net",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 8.0
+  },
+  {
+    "title": "AppArmor — enforce libvirtd profile, confine QEMU to /opt/security/images/vms/",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "DIFFICULT",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Lock down sec_admin — confirm libvirt group membership survives reboot",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Fix bad sudoers permissions",
+    "description": "cryptsetup, sec-admin, union",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "DIFFICULT",
+    "bucket": 0,
+    "urgency": 8.0
+  },
+  {
+    "title": "Take clean post-config snapshot of Kali VM",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 6.0
+  },
+  {
+    "title": "Delete original 7z from /var/lib/libvirt/images/",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 3.0
+  },
+  {
+    "title": "Update runbook — reflect actual pool setup (qemu:///system URI throughout)",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 2,
+    "urgency": 5.0
+  },
+  {
+    "title": "Document SPICE tunnel workflow for client access",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 2,
+    "urgency": 5.0
+  },
+  {
+    "title": "Add libvirt group to sec_admin setup steps in runbook",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 3.0
+  },
+  {
+    "title": "Add o+x permission notes for /opt/security path to runbook",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 3.0
+  },
+  {
+    "title": "Audit work pool — job app automation at /srv/work",
+    "description": "VM for job app automator may still exist",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 2,
+    "urgency": 5.0
+  },
+  {
+    "title": "Remove sec_root sudoer",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 0,
+    "urgency": 8.0
+  },
+  {
+    "title": "Investigate limiting IP addresses between fleet host and Docker containers/VMs",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 6.0
+  },
+  {
+    "title": "Plan, spec, and allocate tasks for tmux templates",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 2,
+    "urgency": 4.0
+  },
+  {
+    "title": "Split /usr/local/bin to domain paths",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 2,
+    "urgency": 4.0
+  },
+  {
+    "title": "Fix /opt/security/tooling/scripts/htb-start",
+    "description": "Auto-populate date started, add command to complete an HTB machine, auto-populate date completed",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 8.0
+  },
+  {
+    "title": "Add kali password to vault",
+    "description": null,
+    "work_type": "PHONE_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 0,
+    "urgency": 9.0
+  },
+  {
+    "title": "Enroll for next year at FHSU",
+    "description": null,
+    "work_type": "PHONE_WORK",
+    "enjoyability": "DREAD",
+    "bucket": 0,
+    "urgency": 9.0
+  },
+  {
+    "title": "Union — button hover/active states on panel",
+    "description": "Inline styles don't support :hover — needs React hover state hook across all components",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 5.0
+  },
+  {
+    "title": "Union — UI polish pass on task management panel",
+    "description": null,
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 5.0
+  },
+  {
+    "title": "Union — layout manager rewrite (react-grid-layout)",
+    "description": "Free positioning with snap-to-grid, drag/resize panels. Dependency for second panel.",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 0,
+    "urgency": 7.0
+  },
+  {
+    "title": "Union — auto-create MAIN tab on first login if none exist",
+    "description": "Either in auth verify endpoint or frontend App.jsx after auth check",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 5.0
+  },
+  {
+    "title": "Union — file artifact upload frontend",
+    "description": "File picker still broken — shadow DOM removed, needs retest and completion",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 0,
+    "urgency": 7.0
+  },
+  {
+    "title": "Union — remove shadow DOM from focus component",
+    "description": "tm-focus/src/focus.jsx still uses attachShadow — same issue as panel.jsx",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 5.0
+  },
+  {
+    "title": "Union — systemd mount units for union_s and union_ts",
+    "description": "Docker services must depend on LUKS mounts. Prevents phantom DB creation on unmounted volume.",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "DIFFICULT",
+    "bucket": 0,
+    "urgency": 9.0
+  },
+  {
+    "title": "Union — startup guard on all three services",
+    "description": "Hard fail if DB not found at expected path. Refuse to start, log clear error.",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 0,
+    "urgency": 9.0
+  },
+  {
+    "title": "Union — service token persistence across restarts",
+    "description": "Write service token to /data/service_token on registration",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 2,
+    "urgency": 4.0
+  },
+  {
+    "title": "Union — delete task_old.py and schemas/task_old.py dead files",
+    "description": null,
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 2.0
+  },
+  {
+    "title": "Union — fix triple timezone import from sed artifact",
+    "description": "Several files have duplicate timezone imports from the utcnow replacement sed",
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 2.0
+  },
+  {
+    "title": "Union — build base-security Docker image",
+    "description": "scapy, impacket, cryptography, paramiko. Dependency for Security Tools Service.",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "PLEASANT",
+    "bucket": 1,
+    "urgency": 7.0
+  },
+  {
+    "title": "Union — spec and build Security Tools Service (V1.5)",
+    "description": "Panel launches security tools, backend spawns subprocesses, returns structured results",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "ENJOYABLE",
+    "bucket": 1,
+    "urgency": 8.0
+  },
+  {
+    "title": "Union — remove /srv/union:ro mount from task-management",
+    "description": "Deferred until V2.1 event bus. Replace with orchestrator file broker pattern.",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 2.0
+  },
+  {
+    "title": "Union — complete Task and Session state diagrams",
+    "description": "Fix identified gaps: complete/block/unblock guards, mounted not cleared on complete, unblock can un-complete a task",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 1,
+    "urgency": 5.0
+  },
+  {
+    "title": "Union — gated task tray counts do not refresh after unmount",
+    "description": "Low priority. Requires manual refresh button after unmounting from main panel.",
+    "work_type": "DEEP_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 2.0
+  },
+  {
+    "title": "Union — add python-multipart to base-webserver",
+    "description": "Currently in task-management requirements.txt only. Any service doing file uploads needs it.",
+    "work_type": "LIGHT_WORK",
+    "enjoyability": "NEUTRAL",
+    "bucket": 3,
+    "urgency": 3.0
+  }
+]
